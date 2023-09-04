@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TwitterBook.Options;
+using TwitterBook.Services;
 
 namespace TwitterBook.Installers
 {
@@ -17,6 +18,8 @@ namespace TwitterBook.Installers
             var jwtSettings = new JwtSettings();
             configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
+
+            services.AddScoped<IIdentityService, IdentityService>();
 
             services.AddAuthentication(x =>
             {

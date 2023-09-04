@@ -48,7 +48,7 @@ namespace TwitterBook
             app.UseRouting();
             
             app.UseAuthentication();
-            // app.UseAuthorization();
+            app.UseAuthorization();
             
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
