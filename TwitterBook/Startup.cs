@@ -42,6 +42,14 @@ namespace TwitterBook
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseRouting();
+            
+            app.UseAuthentication();
+            // app.UseAuthorization();
+            
             var swaggerOptions = new SwaggerOptions();
             Configuration.GetSection(nameof(SwaggerOptions)).Bind(swaggerOptions);
             
@@ -53,14 +61,6 @@ namespace TwitterBook
             {
                 option.SwaggerEndpoint(swaggerOptions.UIEndpoint, swaggerOptions.Description);
             });
-
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-
-            app.UseRouting();
-            
-            // app.UseAuthentication();
-            // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
