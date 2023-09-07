@@ -1,6 +1,6 @@
-﻿namespace TwitterBook.Contracts.Responses
+﻿namespace TwitterBook.Contracts.Requests
 {
-    public class AuthSuccessResponse
+    public class RefreshTokenRequest
     {
         public string Token { get; set; }
         
