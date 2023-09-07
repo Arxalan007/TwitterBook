@@ -4,11 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.UI.V4.Pages.Internal.Account;
 using Microsoft.AspNetCore.Mvc;
 using TwitterBook.Contract.V1;
 using TwitterBook.Contracts.Requests;
 using TwitterBook.Contracts.Responses;
 using TwitterBook.Domain;
+using TwitterBook.Extensions;
 using TwitterBook.Services;
 
 namespace TwitterBook.Controllers.V1
@@ -43,7 +45,11 @@ namespace TwitterBook.Controllers.V1
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
         {
-            var post = new Post { Name = postRequest.Name };
+            var post = new Post
+            {
+                Name = postRequest.Name,
+                UserId = HttpContext.GetUserId()
+            };
 
             await _postService.CreatePostAsync(post);
 
@@ -58,11 +64,15 @@ namespace TwitterBook.Controllers.V1
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest request)
         {
-            var post = new Post
+            var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+            
+            if (!userOwnsPost)
             {
-                Id = postId,
-                Name = request.Name
-            };
+                return BadRequest(new { error = "You Do not own this post" });
+            }
+
+            var post = await _postService.GetPostByIdAsync(postId);
+            post.Name = request.Name;
 
             var updated = await _postService.UpdatePostAsync(post);
             
@@ -75,6 +85,13 @@ namespace TwitterBook.Controllers.V1
         [HttpDelete(ApiRoutes.Posts.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
+            var userOwnsPost = await _postService.UserOwnsPostAsync(postId, HttpContext.GetUserId());
+            
+            if (!userOwnsPost)
+            {
+                return BadRequest(new { error = "You Do not own this post" });
+            }
+            
             var deleted = await _postService.DeletePostAsync(postId);
 
             if (deleted)
