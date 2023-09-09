@@ -10,8 +10,8 @@ using TwitterBook.Data;
 namespace TwitterBook.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230903210411_AddedPosts")]
-    partial class AddedPosts
+    [Migration("20230907192754_Added_UserId_InPosts")]
+    partial class Added_UserId_InPosts
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -230,7 +230,12 @@ namespace TwitterBook.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -284,6 +289,15 @@ namespace TwitterBook.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("TwitterBook.Domain.Post", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
