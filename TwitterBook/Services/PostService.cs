@@ -63,5 +63,10 @@ namespace TwitterBook.Services
 
             return post.UserId == userId;
         }
+
+        // public async Task<List<Tag>> GetAllTagsAsync()
+        // {
+        //     return await _dataContext.Tags.ToListAsync();
+        // }
     }
 }

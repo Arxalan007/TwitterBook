@@ -20,7 +20,7 @@ namespace TwitterBook.Installers
             services.AddSingleton(jwtSettings);
 
             services.AddScoped<IIdentityService, IdentityService>();
-            
+
             var tokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
@@ -34,15 +34,20 @@ namespace TwitterBook.Installers
             services.AddSingleton(tokenValidationParameters);
 
             services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.SaveToken = true;
-                x.TokenValidationParameters = tokenValidationParameters;
+                {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(x =>
+                {
+                    x.SaveToken = true;
+                    x.TokenValidationParameters = tokenValidationParameters;
+                });
 
+            services.AddAuthorization(authorizationOptions =>
+            {
+                authorizationOptions.AddPolicy("TagViewer", builder => builder.RequireClaim("tags.view", "true"));
             });
 
             services.AddSwaggerGen(x =>
@@ -50,7 +55,7 @@ namespace TwitterBook.Installers
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "TweetBook Api", Version = "v1" });
                 var security = new Dictionary<string, IEnumerable<string>>
                 {
-                    {"Bearer", new string[0]}
+                    { "Bearer", new string[0] }
                 };
                 x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
@@ -73,7 +78,6 @@ namespace TwitterBook.Installers
                             Scheme = "oauth2",
                             Name = "Bearer",
                             In = ParameterLocation.Header,
-
                         },
                         new List<string>()
                     }
