@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,9 +14,10 @@ using TwitterBook.Data;
 
 namespace TwitterBook.IntegrationTests
 {
-    public class IntegrationTest
+    public class IntegrationTest : IDisposable
     {
         protected readonly HttpClient TestClient;
+        protected readonly IServiceProvider _serviceProvider;
 
         protected IntegrationTest()
         {
@@ -28,7 +30,8 @@ namespace TwitterBook.IntegrationTests
                         services.AddDbContext<DataContext>(options => { options.UseInMemoryDatabase("TestDb"); });
                     });
                 });
-        
+
+            _serviceProvider = appFactory.Services;
             TestClient = appFactory.CreateClient();
         }
 
@@ -57,6 +60,13 @@ namespace TwitterBook.IntegrationTests
             var registrationResponse = await response.Content.ReadAsAsync<AuthSuccessResponse>();
 
             return registrationResponse.Token;
+        }
+
+        public void Dispose()
+        {
+            using var serviceScope = _serviceProvider.CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<DataContext>();
+            context.Database.EnsureDeleted();
         }
     }
 }
